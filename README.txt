@@ -1,0 +1,1 @@
+This project contains my designs for the Maker Access Control system. Its an expandable system that can limit access to many doors from a centralized password databse. It accepts keycodes or RFID card and supplies a dry relay to open the door.
