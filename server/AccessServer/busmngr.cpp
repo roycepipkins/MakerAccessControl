@@ -327,7 +327,7 @@ AuthReply BusMngr::authFromFile(QString id, QString addr)
         reply.accessGranted = false;
         reply.line1 = "     Access";
         reply.line2 = "     Denied!";
-        msg = "Access Denied at the door addressed " + addr + " (FILE)";
+        msg = "Access Denied for " + id + " at the door addressed " + addr + " (FILE)";
         Log(msg);
     }
     else

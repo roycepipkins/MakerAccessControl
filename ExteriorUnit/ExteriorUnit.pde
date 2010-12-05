@@ -26,10 +26,10 @@
 #define SET_IDLE 6
 #define ACKNOWLEDGE 7
 
-#define IDLETIME 7000
-
-#define idle_msg1 "  Welcome to"
-#define idle_msg2 "  Bucketworks!"
+#define IDLETIME 14000
+                 //0123456789ABCDEF
+#define idle_msg1 "   Milwaukee"
+#define idle_msg2 "   Makerspace"
 
 char keys[4][3] =
 {
@@ -113,7 +113,7 @@ class LCDMngr2x16 : public LiquidCrystal
         if (millis() > idle_time) //expires early in rare wrap sitution. not a big deal.
         {
           idle_timer_active = false;
-          clear();
+          LiquidCrystal::begin(16, 2);
           print(idle1);
           setCursor(0,1); 
           print(idle2);
@@ -399,7 +399,6 @@ void processInteriorUnit()
       }
       break;
     case ACCESS_GRANTED:
-    case ACCESS_DENIED:
       strncpy(line1, (char*)(intCom.getBody()), 16);
       line1[16] = 0;
       strncpy(line2, (char*)(intCom.getBody() + 16), 16);
@@ -410,6 +409,19 @@ void processInteriorUnit()
       lcd.setCursor(0,1);
       lcd.print(line2);
       lcd.startIdleTimer(IDLETIME);
+      id_for_verification[0] = 0;
+      intCom.send(INT_ADDRESS, ACKNOWLEDGE, (const unsigned char*)"ACKNOWLEDGE");
+    case ACCESS_DENIED:
+      strncpy(line1, (char*)(intCom.getBody()), 16);
+      line1[16] = 0;
+      strncpy(line2, (char*)(intCom.getBody() + 16), 16);
+      line2[16] = 0;
+      
+      lcd.clear();
+      lcd.print(line1);
+      lcd.setCursor(0,1);
+      lcd.print(line2);
+      lcd.startIdleTimer(4500);
       id_for_verification[0] = 0;
       intCom.send(INT_ADDRESS, ACKNOWLEDGE, (const unsigned char*)"ACKNOWLEDGE");
       break;

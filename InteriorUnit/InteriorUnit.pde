@@ -6,7 +6,7 @@
 
 
 
-const uint16_t LOCK_TIME = 7000; //the lock is open for seven secs follow admission
+const uint16_t LOCK_TIME = 14000; //the lock is open for seven secs follow admission
 const uint8_t LOCK_PIN = 7;
 const uint8_t DEBUG_PIN = 8;
 
