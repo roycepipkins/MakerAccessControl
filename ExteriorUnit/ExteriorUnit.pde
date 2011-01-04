@@ -26,10 +26,10 @@
 #define SET_IDLE 6
 #define ACKNOWLEDGE 7
 
-#define IDLETIME 14000
+#define IDLETIME 5000
                  //0123456789ABCDEF
-#define idle_msg1 "   Milwaukee"
-#define idle_msg2 "   Makerspace"
+#define idle_msg1 "   Welcome to"
+#define idle_msg2 "   Bucketworks"
 
 char keys[4][3] =
 {
