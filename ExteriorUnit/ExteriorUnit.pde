@@ -1,5 +1,6 @@
 //Copyright Royce Pipkins 2010
 //May be used under the terms of the GPL V3 or higher. http://www.gnu.org/licenses/gpl.html
+#include <avr/wdt.h>
 #include "string.h"
 #include <LiquidCrystal.h>
 #include <NewSoftSerial.h>
@@ -28,8 +29,8 @@
 
 #define IDLETIME 5000
                  //0123456789ABCDEF
-#define idle_msg1 "   Welcome to"
-#define idle_msg2 "   Bucketworks"
+#define idle_msg1 "   Milwaukee"
+#define idle_msg2 "   Makerspace"
 
 char keys[4][3] =
 {
@@ -462,6 +463,8 @@ void setup()
   {
    rfid_packet.packet_data[idx] = 0;
   }
+  
+  wdt_enable(WDTO_2S);
 }
 
 void loop() 
@@ -470,5 +473,6 @@ void loop()
   processKeypad();
   processInteriorUnit();
   lcd.processLCD();
+  wdt_reset();
 }
 

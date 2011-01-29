@@ -1,5 +1,6 @@
 //Copyright Royce Pipkins 2010
 //May be used under the terms of the GPL V3 or higher. http://www.gnu.org/licenses/gpl.html
+#include <avr/wdt.h>
 #include <NewSoftSerial.h>
 #include <ASCIIProtocol.h>
 
@@ -81,6 +82,7 @@ void setup()
   Serial.print("Device Address = 0x");
   Serial.println(ADDRESS, HEX);
   
+  wdt_enable(WDTO_2S);
 }
 
 bool waitForExtReply()
@@ -136,6 +138,17 @@ void respondToPoll()
   }
 }
 
+void DoLockDelay()
+{
+  int lt = LOCK_TIME;
+  while(lt > 0)
+  {
+    delay(500);
+    lt -= 500;
+    wdt_reset();
+  }  
+}
+
 //expecting 33 bytes, 2x16 lines with null terminator
 void grantAccess(unsigned char* data)
 {
@@ -150,7 +163,8 @@ void grantAccess(unsigned char* data)
       acknowledge();
       //open the lock for a period of time
       digitalWrite(LOCK_PIN, HIGH);
-      delay(LOCK_TIME);
+      DoLockDelay();
+      //delay(LOCK_TIME);
       digitalWrite(LOCK_PIN, LOW);
     }
   }
@@ -239,4 +253,6 @@ void loop()
     }
     svrCom.erasePkt();
   }
+  
+  wdt_reset();
 }
