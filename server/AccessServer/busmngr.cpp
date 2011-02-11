@@ -156,7 +156,12 @@ void BusMngr::onReadyRead()
     unsigned char data;
     while (bus.bytesAvailable())
     {
-        bus.getChar((char*)&data);
+
+        if (!bus.getChar((char*)&data))
+        {
+            bus.close();
+            return;
+        }
         protocolDriver.recv(data);
     }
 

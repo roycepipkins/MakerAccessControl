@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'busmngr.h'
 **
-** Created: Thu Jul 1 22:11:23 2010
+** Created: Thu Feb 10 21:11:22 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.6.3)
 **
 ** WARNING! All changes made in this file will be lost!
