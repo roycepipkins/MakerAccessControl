@@ -156,7 +156,12 @@ void BusMngr::onReadyRead()
     unsigned char data;
     while (bus.bytesAvailable())
     {
-        bus.getChar((char*)&data);
+
+        if (!bus.getChar((char*)&data))
+        {
+            bus.close();
+            return;
+        }
         protocolDriver.recv(data);
     }
 
@@ -214,7 +219,7 @@ void BusMngr::checkID()
         qDebug() << "Access Request";
         QString id = (char*)protocolDriver.getBody();
         QString addr;
-        addr.setNum(protocolDriver.getAddress(), 16);
+        addr.setNum(deviceList[deviceIdx].addr, 10);
         AuthReply reply = isAuthorized(id, addr);
         QString body;
         uint8_t code;
@@ -244,17 +249,25 @@ AuthReply BusMngr::isAuthorized(QString id, QString addr)
     QSettings settings(conffile, QSettings::IniFormat);
     AuthReply reply;
     bool convert_ok = false;
-    int door_addr = addr.toInt(&convert_ok, 16);
-    QString query_str =  "select username,role,door_desc,user_roles.user_id,roles.role_id "
-                     "from hashes,roles,doors,door_roles,user_roles "
-                     "where roles.role_id=door_roles.role_id "
-                     "and doors.door_address=door_roles.door_address "
-                     "and door_roles.role_id = user_roles.role_id "
-                     "and hashes.user_id = user_roles.user_id "
-                     "and hashes.hash_id = md5(\"" + id + "\") "
-                     "and doors.door_address = "
-                     + QString::number(door_addr, 10) + ";";
 
+    int door_addr = addr.toInt(&convert_ok, 16);
+    qDebug() << "addr: " << addr << " door_addr: " << door_addr;
+    QString query_str =  "select username,role,door_desc "
+                         "from hashes,roles,doors,door_roles,user_roles,role_access_times "
+                         "where roles.role_id=door_roles.role_id "
+                         "  and doors.door_address=door_roles.door_address"
+                         "  and door_roles.role_id = user_roles.role_id"
+                         "  and roles.role_id=role_access_times.role_id"
+                         "  and hashes.user_id = user_roles.user_id"
+                         "  and hashes.hash_id = md5(\"" + id + "\") "
+                         "  and doors.door_address = "
+                         + QString::number(door_addr, 10) +
+                         "  and user_roles.expiration > NOW()"
+                         "  and role_access_times.day_of_week = DAYOFWEEK(NOW())"
+                         "  and role_access_times.starttime <= CURTIME()"
+                         "  and role_access_times.stoptime > CURTIME();";
+
+    if (!db.isOpen()) db.open();
     QSqlQuery query(db);
     if (query.exec(query_str))
     {

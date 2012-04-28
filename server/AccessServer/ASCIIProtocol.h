@@ -29,13 +29,18 @@
 #include "Print.h"
 #else
 #include <QIODevice>
+#include <QtDebug>
 class Print
 {
     public:
     Print(QIODevice& qio) : io(qio){}
     void write(const uint8_t *buffer, size_t size)
-    {
-        io.write((char*)buffer, size);
+    { 
+        if (-1 == io.write((char*)buffer, size))
+        {
+            qDebug() << "Failed to write";
+            io.close();
+        }
     }
     private:
         QIODevice& io;
