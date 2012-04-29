@@ -1,3 +1,5 @@
+//Copyright Royce Pipkins 2010
+//May be used under the terms of the GPL V3 or higher. http://www.gnu.org/licenses/gpl.html
 /*
  * ASCIIProtocol.h
  *
@@ -26,14 +28,19 @@
 #ifdef __AVR__
 #include "Print.h"
 #else
-#include <QIODevice.h>
+#include <QIODevice>
+#include <QtDebug>
 class Print
 {
     public:
     Print(QIODevice& qio) : io(qio){}
     void write(const uint8_t *buffer, size_t size)
-    {
-        io.write((char*)buffer, size);
+    { 
+        if (-1 == io.write((char*)buffer, size))
+        {
+            qDebug() << "Failed to write";
+            io.close();
+        }
     }
     private:
         QIODevice& io;
