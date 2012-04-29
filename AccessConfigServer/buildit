@@ -1,0 +1,16 @@
+g++ -o AccessConfigServer \
+-I /usr/local/include \
+-I /usr/include \
+-L /usr/local/lib \
+-L /usr/lib \
+-l json_linux-gcc-4.4.5_libmt \
+-l mysqlclient \
+-l PocoCrypto \
+-l PocoData \
+-l PocoDataMySQL \
+-l PocoFoundation \
+-l PocoNet \
+-l PocoNetSSL \
+-l PocoUtil \
+AccessConfigServer.cpp ConfigRequest.cpp ConfigRequestFactory.cpp
+

@@ -1,0 +1,35 @@
+﻿Build started 4/28/2012 5:53:56 PM.
+     1>Project "D:\source\MakerAccessControl\AccessConfigServer\AccessConfigServer.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Creating "Debug\AccessConfigServer.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"..\..\jsoncpp-src-0.6.0-rc2\include" /I"..\..\poco-1.4.3p1-all\Foundation\include" /I"..\..\poco-1.4.3p1-all\Net\include" /I"..\..\poco-1.4.3p1-all\Util\include" /I"..\..\poco-1.4.3p1-all\Data\include" /I"..\..\poco-1.4.3p1-all\Data\MySQL\include" /I"..\..\mysql-connector-c-6.0.2\include" /I"..\..\poco-1.4.3p1-all\NetSSL_OpenSSL\include" /I"..\..\poco-1.4.3p1-all\Crypto\include" /I"..\..\openssl-1.0.0g\include" /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MTd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt AccessConfigServer.cpp ConfigRequest.cpp ConfigRequestFactory.cpp
+         ConfigRequestFactory.cpp
+         ConfigRequest.cpp
+         AccessConfigServer.cpp
+         Generating Code...
+       ManifestResourceCompile:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /nologo /fo"Debug\AccessConfigServer.exe.embed.manifest.res" Debug\AccessConfigServer_manifest.rc 
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\source\MakerAccessControl\AccessConfigServer\Debug\AccessConfigServer.exe" /INCREMENTAL /NOLOGO /LIBPATH:"..\..\openssl-1.0.0g\lib" /LIBPATH:"..\..\poco-1.4.3p1-all\lib" /LIBPATH:"..\..\jsoncpp-src-0.6.0-rc2\build\vs10\debug\lib_json" /LIBPATH:"..\..\mysql-connector-c-6.0.2\libmysql\Debug" mysqlclient.lib json_vc10_libmtd.lib PocoFoundationmtd.lib PocoDatamtd.lib PocoDataMySQLmtd.lib PocoNetmtd.lib PocoUtilmtd.lib PocoNetSSLmtd.lib PocoCryptomtd.lib Crypt32.lib libeay32d.lib ssleay32d.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\AccessConfigServer.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"D:\source\MakerAccessControl\AccessConfigServer\Debug\AccessConfigServer.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\source\MakerAccessControl\AccessConfigServer\Debug\AccessConfigServer.lib" /MACHINE:X86 Debug\AccessConfigServer.exe.embed.manifest.res
+         Debug\AccessConfigServer.obj
+         Debug\ConfigRequest.obj
+         Debug\ConfigRequestFactory.obj
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /out:"Debug\AccessConfigServer.exe.embed.manifest" /manifest Debug\AccessConfigServer.exe.intermediate.manifest
+         All outputs are up-to-date.
+       LinkEmbedManifest:
+         All outputs are up-to-date.
+         AccessConfigServer.vcxproj -> D:\source\MakerAccessControl\AccessConfigServer\Debug\AccessConfigServer.exe
+       PostBuildEvent:
+         copy D:\source\MakerAccessControl\AccessConfigServer\AccessConfigServer.ini D:\source\MakerAccessControl\AccessConfigServer\Debug\
+         :VCEnd
+                 1 file(s) copied.
+       FinalizeBuildStatus:
+         Deleting file "Debug\AccessConfigServer.unsuccessfulbuild".
+         Touching "Debug\AccessConfigServer.lastbuildstate".
+     1>Done Building Project "D:\source\MakerAccessControl\AccessConfigServer\AccessConfigServer.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:07.17

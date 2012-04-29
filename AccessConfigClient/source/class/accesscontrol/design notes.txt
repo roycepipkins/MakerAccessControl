@@ -1,0 +1,19 @@
+Controls
+functions
+	login
+		user
+		password
+		login button
+	add user
+	edit user
+		list of current users
+		name edit
+		list of passwords
+			password edit
+			password add
+			password del
+		role select
+		expiration edit
+		save
+		clear
+	delete user

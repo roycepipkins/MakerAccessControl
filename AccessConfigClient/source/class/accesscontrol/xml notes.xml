@@ -1,0 +1,26 @@
+AccessControl Update Protocol
+
+<AccessControlDB>
+	<User id="24" name="JohnP" expiration="2012/03/07 23:59:59" roles="Student Member,BackDoor Access">
+		<passwordHash hash="JHSDJHSJHB"/>
+		<passwordHash hash="KJ84MSI93MIE"/>
+	</User>
+	<User id="25" name="SusyQ" expiration="2012/06/07 23:59:59" roles="Full Member,BackDoor Access,EDM Access">
+		<passwordHash hash="JHSDJHSJHB"/>
+		<passwordHash hash="KJ84MSI93MIE"/>
+	</User>
+</AccessControlDB>
+
+<AccessControlDBUpdate>
+	<addUser>
+		<User id="26" name="SpotM" expiration="2012/04/07 23:59:59" role="Weekend Member,BackDoor Access">
+			<passwordHash hash="KJ84MSI93MIE"/>
+		</User>
+	</addUser>
+	
+	<modifyUser>
+		<User id="24"  expiration="2012/04/07 23:59:59"/>
+	</modifyUser>
+	
+	
+</AccessControlDBUpdate>
