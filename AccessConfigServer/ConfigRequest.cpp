@@ -222,9 +222,17 @@ void ConfigRequest::GetAllRoles(Json::Value& resp)
 	
 		resp["roles"] = allRoles;
 	}
+	catch(Exception e)
+	{
+		stringstream msg;
+		msg << e.name() << ": " << e.message();
+		resp["exception"] = msg.str();
+		resp["success"] = false;
+	}
 	catch(...)
 	{
 		resp["success"] = false;
+		resp["exception"] = "Unknown";
 	}
 }
 
@@ -239,9 +247,17 @@ void ConfigRequest::DeleteUser(Json::Value user, Json::Value& resp)
 		sess << "DELETE FROM hashes WHERE user_id = ?", use(user_id), now;
 		sess << "DELETE FROM user_roles WHERE user_id = ?",  use(user_id), now;
 	}
+	catch(Exception e)
+	{
+		stringstream msg;
+		msg << e.name() << ": " << e.message();
+		resp["exception"] = msg.str();
+		resp["success"] = false;
+	}
 	catch(...)
 	{
 		resp["success"] = false;
+		resp["exception"] = "Unknown";
 	}
 }
 
@@ -292,9 +308,17 @@ void ConfigRequest::SaveUser(Json::Value user, Json::Value& resp)
 			insert_ur.execute();
 		}
 	}
+	catch(Exception e)
+	{
+		stringstream msg;
+		msg << e.name() << ": " << e.message();
+		resp["exception"] = msg.str();
+		resp["success"] = false;
+	}
 	catch(...)
 	{
 		resp["success"] = false;
+		resp["exception"] = "Unknown";
 	}
 }
 
@@ -366,7 +390,15 @@ void ConfigRequest::GetAllUsers(Json::Value& resp)
 	}
 	catch(Exception e)
 	{
-		string msg = e.message();
+		stringstream msg;
+		msg << e.name() << ": " << e.message();
+		resp["exception"] = msg.str();
+		resp["success"] = false;
+	}
+	catch(...)
+	{
+		resp["success"] = false;
+		resp["exception"] = "Unknown";
 	}
 }
 

@@ -67,6 +67,7 @@ qx.Class.define("accesscontrol.UserEdit",
 		
 		this.user_edit_comp.add(new qx.ui.basic.Label("User Name:"), {row: 0, column: 0});
 		this.userName 		= new  qx.ui.form.TextField();
+		this.userName.addListener("input", this.userNameChanged, this);
 		this.user_edit_comp.add(this.userName, {row: 1, column:0});
 		
 		this.user_edit_comp.add(new qx.ui.basic.Label("Key Code:"), {row: 2, column: 0});
@@ -142,7 +143,10 @@ qx.Class.define("accesscontrol.UserEdit",
 		this.getAllUsers();
 		this.getAllRoles();
 		
-		this.enable();
+		this.disable();
+		this.usersTable.setEnabled(true);
+		this.addUserButton.setEnabled(true);
+		this.delUserButton.setEnabled(true);
 		
 	},
 	events :
@@ -153,6 +157,14 @@ qx.Class.define("accesscontrol.UserEdit",
 	{
 		userIdx : -1,
 		userHasChanged : false,
+		userNameChanged : function()
+		{
+			if (!this.userHasChanged)
+			{
+				this.userHasChanged = true;
+				this.enable();
+			}
+		},
 		onUserSelectionChange : function()
 		{
 			var userData = this.usersTableModel.getData();
@@ -166,6 +178,7 @@ qx.Class.define("accesscontrol.UserEdit",
 					this.userIdx = this.getUsersIndex(user_id);
 					var user = this.users[this.userIdx];
 					this.setUserData(user);
+					this.enable();
 				}
 			}
 		},
