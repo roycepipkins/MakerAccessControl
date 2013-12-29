@@ -1,13 +1,13 @@
 //Copyright Royce Pipkins 2010
 //May be used under the terms of the GPL V3 or higher. http://www.gnu.org/licenses/gpl.html
 #include <avr/wdt.h>
-#include <NewSoftSerial.h>
-#include <ASCIIProtocol.h>
+#include <SoftwareSerial.h>
+#include "ASCIIProtocol.h"
 
 
 
 
-const uint16_t LOCK_TIME = 14000; //the lock is open for seven secs follow admission
+const uint16_t LOCK_TIME = 7000; //the lock is open for seven secs follow admission
 const uint8_t LOCK_PIN = 7;
 const uint8_t DEBUG_PIN = 8;
 
@@ -33,7 +33,7 @@ const uint8_t ACKNOWLEDGE = 7;
 
 
 
-NewSoftSerial nss(4, 3, false);  //RX, TX
+SoftwareSerial nss(4, 3, false);  //RX, TX
 ASCIIProtocol svrCom(Serial);
 ASCIIProtocol extCom(nss);
 
@@ -77,7 +77,7 @@ void setup()
   ADDRESS = ~ADDRESS;
    
   Serial.println("****************************************");  
-  Serial.println("Milwaukee Makerspace Access Control v1.1");
+  Serial.println("Milwaukee Makerspace Access Control v1.2");
   Serial.println("****************************************");
   Serial.print("Device Address = 0x");
   Serial.println(ADDRESS, HEX);
@@ -110,7 +110,8 @@ void xmitToSvr(uint8_t type, uint8_t* body)
 {
   digitalWrite(svrFlowPin, HIGH);
   svrCom.send(SERVER_ADDRESS, type, extCom.getBody());  
-  delay(5); //add a couple milliseconds for the last char to shift out
+  Serial.flush();
+  delay(1);
   digitalWrite(svrFlowPin, LOW);
 }
 

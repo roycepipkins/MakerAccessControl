@@ -1,8 +1,12 @@
-// include the library code:
+//Copyright Royce Pipkins 2010
+//May be used under the terms of the GPL V3 or higher. http://www.gnu.org/licenses/gpl.html
+#include <avr/wdt.h>
+#include "string.h"
 #include <LiquidCrystal.h>
-#include <NewSoftSerial.h>
-#include "LCDMngr.h"
+#include <SoftwareSerial.h>
+#include "ASCIIProtocol.h"
 
+#define INT_ADDRESS 1
 
 #define ROW1 13
 #define ROW2 14
@@ -15,22 +19,19 @@
 #define STX 2
 #define ETX 3
 
-#define idle_msg1 "  Welcome to"
-#define idle_msg2 "  Bucketworks!"
+#define ID_CHECK 1
+#define ACCESS_REQ 2
+#define NO_ACTIVITY 3
+#define ACCESS_GRANTED 4
+#define ACCESS_DENIED 5
+#define SET_IDLE 6
+#define ACKNOWLEDGE 7
 
-#include "WProgram.h"
-void Buzz(bool state);
-char readKeyPad();
-bool is_good_rfid_packet();
-void rfid_packet_recv(char data);
-void processRFID();
-void processKeypad();
-void iu_packet_recv(char data);
-bool is_valid_iu_packet();
-void reset_iu_packet();
-void processInteriorUnit();
-void setup();
-void loop();
+#define IDLETIME 14000
+                 //0123456789ABCDEF
+#define idle_msg1 "     MSOE"
+#define idle_msg2 "Fluid Power Inst"
+
 char keys[4][3] =
 {
   {'1', '2', '3'},
@@ -64,7 +65,8 @@ char id_for_verification[11];
 
 // initialize the library with the numbers of the interface pins
 
-NewSoftSerial rfid(8, 7, false); 
+SoftwareSerial intUnitSerial(8, 7, false); 
+ASCIIProtocol intCom(intUnitSerial);
 
 class LCDMngr2x16 : public LiquidCrystal
 {
@@ -112,7 +114,7 @@ class LCDMngr2x16 : public LiquidCrystal
         if (millis() > idle_time) //expires early in rare wrap sitution. not a big deal.
         {
           idle_timer_active = false;
-          clear();
+          LiquidCrystal::begin(16, 2);
           print(idle1);
           setCursor(0,1); 
           print(idle2);
@@ -286,9 +288,9 @@ void processRFID()
 {
   char data;
   
-  while (rfid.available() > 0)
+  while (Serial.available() > 0)
   {
-    rfid_packet_recv(rfid.read());
+    rfid_packet_recv(Serial.read());
   }
   
   if (is_good_rfid_packet())
@@ -300,8 +302,9 @@ void processRFID()
    strncpy(id_for_verification, rfid_packet.fields.id, 10);
    id_for_verification[10] = 0;
    lcd.clear();
-   lcd.startIdleTimer(10000);
-   lcd.print(id_for_verification);
+   lcd.print("Checking...");
+   lcd.setCursor(0,1);
+   lcd.startIdleTimer(IDLETIME); 
    
    rfid_packet.fields.stx = 0;
   }  
@@ -326,12 +329,13 @@ void processKeypad()
          lcd.clear();
          lcd.print("Press # at end.");
          lcd.setCursor(0,1);
-         lcd.startIdleTimer(10000);         
+         lcd.startIdleTimer(IDLETIME);         
        }
        start_time = millis(); //mark the time of the key press
-       lcd.startIdleTimer(10000); 
-       lcd.print(data); 
-       if (strlen(keyBuffer) < sizeof(11))
+       lcd.startIdleTimer(IDLETIME); 
+       //lcd.print(data);  
+       lcd.print('*');     //don't print the passcode itself
+       if (strlen(keyBuffer) < 10)
          strcat(keyBuffer, data);
        
        if (data[0] == '#') //'#' means submit id code for access
@@ -343,130 +347,97 @@ void processKeypad()
          lcd.clear();
          lcd.print("Checking...");
          lcd.setCursor(0,1);
-         lcd.startIdleTimer(10000); 
+         lcd.startIdleTimer(IDLETIME); 
        }
      } 
   }
   else
   {
-    if (millis() - start_time > 10000 && start_time > 0)
+    if (millis() - start_time > IDLETIME && start_time > 0)
     {
       start_time = 0;
       keyBuffer[0] = 0;
       keyBuffer[11] = 0;
     }    
-  }
-  
-  
+  }  
 }
 
-struct IU_Packet_Fields
-{
-   char stx;
-   char type;
-   char line1[17];
-   char line2[17];
-   char etx; 
-};
 
-union IU_Packet
-{
-  IU_Packet_Fields fields;
-  char data[37];  
-};
-
-IU_Packet iu_packet;
-char iu_packet_end = 0;
-
-void iu_packet_recv(char data)
-{
-  
-  if (iu_packet_end == 0)
-  {
-    //an STX is required to start the packet
-    if (data == STX)
-    {
-      iu_packet.fields.stx = data;
-      iu_packet.fields.etx = 0;
-      iu_packet_end++;
-    }  
-  }
-  else
-  {
-    
-    if (iu_packet_end < 37)
-    {
-      iu_packet.data[iu_packet_end] = data;
-      iu_packet_end++;
-    }
-    else
-      iu_packet_end = 0;    
-  }
-}
-
-bool is_valid_iu_packet()
-{
-  return (iu_packet.fields.stx == STX && iu_packet.fields.etx == ETX);  
-}
-
-void reset_iu_packet()
-{
-  iu_packet.fields.stx = 0;
-  iu_packet_end = 0;
-}
-
-#define ID_CHECK 1
-#define ACCESS_REQ 2
-#define NO_ACTIVITY 3
-#define ACCESS_GRANTED 4
-#define ACCESS_DENIED 5
-#define SET_IDLE_MSG 6
 
 void processInteriorUnit()
 {
-  while (Serial.available() > 0)
+  char line1[17], line2[17];
+  uint8_t data;
+  while (intUnitSerial.available() > 0)
   {
-    iu_packet_recv(Serial.read());
+    
+    data = intUnitSerial.read();
+    //lcd.print(data);  
+    intCom.recv(data);
   }
 
-  if (is_valid_iu_packet())
+  if (data == 3)
   {
-    switch(iu_packet.fields.type)
+    //lcd.clear();
+    //lcd.print(intCom.getChecksum());  
+  }
+
+  if (intCom.isValidPacket())
+  {
+    switch(intCom.getType())
     {
     case ID_CHECK:
-      //the lines are not populated for an id check
-      Serial.print(STX);
+      
       if (strlen(id_for_verification))
       {
-        Serial.print(ACCESS_REQ);
-        Serial.print(id_for_verification);
-        Serial.print(0);
-        reset_iu_packet();
+        intCom.send(INT_ADDRESS, ACCESS_REQ, (uint8_t*)id_for_verification);
+        intCom.erasePkt();
       }
       else
       {
-        Serial.print(NO_ACTIVITY);
+        intCom.send(INT_ADDRESS, NO_ACTIVITY, (const unsigned char*)"NO_ACTIVITY");
+        intCom.erasePkt();
       }
-      Serial.print(ETX);
       break;
     case ACCESS_GRANTED:
-    case ACCESS_DENIED:
-      iu_packet.fields.line1[16] = 0;
-      iu_packet.fields.line2[16] = 0;
+      strncpy(line1, (char*)(intCom.getBody()), 16);
+      line1[16] = 0;
+      strncpy(line2, (char*)(intCom.getBody() + 16), 16);
+      line2[16] = 0;
+      
       lcd.clear();
-      lcd.print(iu_packet.fields.line1);
+      lcd.print(line1);
       lcd.setCursor(0,1);
-      lcd.print(iu_packet.fields.line2);
-      lcd.startIdleTimer(10000);
+      lcd.print(line2);
+      lcd.startIdleTimer(IDLETIME);
+      id_for_verification[0] = 0;
+      intCom.send(INT_ADDRESS, ACKNOWLEDGE, (const unsigned char*)"ACKNOWLEDGE");
+    case ACCESS_DENIED:
+      strncpy(line1, (char*)(intCom.getBody()), 16);
+      line1[16] = 0;
+      strncpy(line2, (char*)(intCom.getBody() + 16), 16);
+      line2[16] = 0;
+      
+      lcd.clear();
+      lcd.print(line1);
+      lcd.setCursor(0,1);
+      lcd.print(line2);
+      lcd.startIdleTimer(4500);
+      id_for_verification[0] = 0;
+      intCom.send(INT_ADDRESS, ACKNOWLEDGE, (const unsigned char*)"ACKNOWLEDGE");
       break;
-    case SET_IDLE_MSG:
-      lcd.setIdleMsg(iu_packet.fields.line1, iu_packet.fields.line2);
+    case SET_IDLE:
+      strncpy(line1, (char*)(intCom.getBody()), 16);
+      line1[16] = 0;
+      strncpy(line2, (char*)(intCom.getBody() + 16), 16);
+      line2[16] = 0;
+      lcd.setIdleMsg(line1, line2);
       lcd.startIdleTimer(0);
       break; 
     default:
-      reset_iu_packet();
       break;
     }
+    intCom.erasePkt();
   }  
 }
 
@@ -481,35 +452,27 @@ void setup()
   OCR1B = 128; //50% duty cycle
   pinMode(10, OUTPUT); //Set OC1B to output
   
-  rfid.begin(9600);    //connection to ID-12 RFID reader module
-  Serial.begin(9600);  //connection to interior unit
+  Serial.begin(9600);    //connection to ID-12 RFID reader module
+  intUnitSerial.begin(9600);  //connection to interior unit
+  intUnitSerial.println("****************************************");  
+  intUnitSerial.println("Milwaukee Makerspace Access Control v1.1");
+  intUnitSerial.println("****************************************");
   
   int idx;
   for(idx = 0; idx < sizeof(RFID_packet); idx++)
   {
    rfid_packet.packet_data[idx] = 0;
   }
+  
+  wdt_enable(WDTO_2S);
 }
 
 void loop() 
 {
-  
   processRFID();
   processKeypad();
   processInteriorUnit();
   lcd.processLCD();
-}
-
-
-int main(void)
-{
-	init();
-
-	setup();
-    
-	for (;;)
-		loop();
-        
-	return 0;
+  wdt_reset();
 }
 

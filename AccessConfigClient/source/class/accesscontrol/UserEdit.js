@@ -335,7 +335,7 @@ qx.Class.define("accesscontrol.UserEdit",
 		},
 		onCheckKey : function()
 		{
-			var hash = accesscontrol.MD5.compute(this.nameBox.getValue());
+			var hash = accesscontrol.MD5.compute(this.nameBox.getValue().toUpperCase());
 			var idx;
 			var found = false;
 			var hashes = this.keysTableModel.getData();
@@ -407,7 +407,7 @@ qx.Class.define("accesscontrol.UserEdit",
 		onAddKeyValue : function()
 		{
 			var rowData = this.keysTableModel.getData();
-			rowData.push(new Array(accesscontrol.MD5.compute(this.nameBox.getValue())));
+			rowData.push(new Array(accesscontrol.MD5.compute(this.nameBox.getValue().toUpperCase())));
 			this.keysTableModel.setData(rowData);
 			this.userHasChanged = true;
 			this.cancelPopup();

@@ -19,7 +19,7 @@ qx.$$packageData = {};
 
 qx.$$loader = {
   parts : {"boot":[0]},
-  packages : {"0":{"uris":["__out__:accesscontrol.efad76fd825c.js"]}},
+  packages : {"0":{"uris":["__out__:accesscontrol.7f854f8770e1.js"]}},
   urisBefore : [],
   cssBefore : [],
   boot : "boot",
@@ -11225,7 +11225,7 @@ this.enable();
 this.collectNewName(this.add_key_button,K,J);
 },checkKey:function(){this.disable();
 this.collectNewName(this.check_key_button,B,bi);
-},onCheckKey:function(){var bN=accesscontrol.MD5.compute(this.nameBox.getValue());
+},onCheckKey:function(){var bN=accesscontrol.MD5.compute(this.nameBox.getValue().toUpperCase());
 var bO;
 var bL=false;
 var bM=this.keysTableModel.getData();
@@ -11263,7 +11263,7 @@ var bT=this.roles.length;
 for(bU=0;bU<bT;bU++){if(this.roles[bU].role_name==name){return this.roles[bU].role_id;
 }}return 0;
 },onAddKeyValue:function(){var bV=this.keysTableModel.getData();
-bV.push(new Array(accesscontrol.MD5.compute(this.nameBox.getValue())));
+bV.push(new Array(accesscontrol.MD5.compute(this.nameBox.getValue().toUpperCase())));
 this.keysTableModel.setData(bV);
 this.userHasChanged=true;
 this.cancelPopup();
