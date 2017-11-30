@@ -5,7 +5,7 @@
 #include <QString>
 #include <QList>
 #include <QObject>
-#include "qextserialport.h"
+#include <QSerialPort>
 #include <QTimer>
 #include <QTime>
 #include <QWaitCondition>
@@ -50,7 +50,7 @@ protected:
         DISCONNECTED
     };
 
-    QextSerialPort bus;
+    QSerialPort bus;
     Print busPrinter;
     ASCIIProtocol protocolDriver;
     void issueIdCheck();

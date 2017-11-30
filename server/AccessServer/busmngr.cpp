@@ -1,7 +1,6 @@
 //Copyright Royce Pipkins 2010
 //May be used under the terms of the GPL V3 or higher. http://www.gnu.org/licenses/gpl.html
 #include "busmngr.h"
-#include "qextserialport.h"
 #include <QtDebug>
 #include <QSettings>
 #include <QVariant>
@@ -28,7 +27,6 @@ using namespace std;
 #define ACKNOWLEDGE 7
 
 BusMngr::BusMngr(QString comPort):
-        bus(QextSerialPort::EventDriven),
         busPrinter(bus),
         protocolDriver(busPrinter),
         deviceIdx(0),
@@ -63,11 +61,11 @@ BusMngr::BusMngr(QString comPort):
     //bus.setQueryMode();
     bus.setPortName(settings.value("commPort", "COM10").toString());
     qDebug() << "BusMngr startup";
-    bus.setBaudRate(BAUD9600);
-    bus.setParity(PAR_NONE);
-    bus.setDataBits(DATA_8);
-    bus.setStopBits(STOP_1);
-    bus.setFlowControl(FLOW_OFF);
+    bus.setBaudRate(QSerialPort::Baud9600);
+    bus.setParity(QSerialPort::NoParity);
+    bus.setDataBits(QSerialPort::Data8);
+    bus.setStopBits(QSerialPort::OneStop);
+    bus.setFlowControl(QSerialPort::NoFlowControl);
     //bus.setTimeout(timeout);
 
     db.setHostName(settings.value("dbHostName", "127.0.0.1").toString());
@@ -111,7 +109,7 @@ void BusMngr::issueIdCheck()
 {
     qDebug() << "issueIdCheck()";
     sleep.wait(&dummytex, 10);
-    bus.setRts(false);
+    bus.setRequestToSend(false);
     protocolDriver.send(deviceList[deviceIdx].addr, ID_CHECK, (uint8_t*)"ID_CHECK");
     busState = WAITING_IDCHECK_REPLY;
     busTimer.start(timeout);
@@ -140,7 +138,7 @@ void BusMngr::onTimeout()
 
 void BusMngr::onRtsTimeout()
 {
-    bus.setRts(true);
+    bus.setRequestToSend(true);
 }
 
 
@@ -246,8 +244,8 @@ void BusMngr::checkID()
         if (reply.line2.length() < 16)  body += QString( 16 - reply.line2.length(), QChar(' '));
         reply.accessGranted ? code = ACCESS_GRANTED : code = ACCESS_DENIED;
         sleep.wait(&dummytex, 10);
-        bus.setRts(false);
-        protocolDriver.send(deviceList[deviceIdx].addr, code, (uint8_t*)body.toAscii().constData());
+        bus.setRequestToSend(false);
+        protocolDriver.send(deviceList[deviceIdx].addr, code, (uint8_t*)body.toStdString().c_str());
         busState = WAITING_ACCESS_ACK;
         busTimer.start(timeout);
         rtsTimer.start(body.length()+25); //approx 1ms per char
